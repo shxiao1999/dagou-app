@@ -36,11 +36,12 @@
       --shadow-lg: 0 4px 20px rgba(0,0,0,0.12);
       --radius: 12px;
       --radius-sm: 10px;
-      --header-h: 44px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --header-h: 48px;
       --status-h: 28px;
       --tab-h: 56px;
-      --safe-bottom: 27px;
-      --hour-h: 32px;
+      --safe-bottom: env(safe-area-inset-bottom, 27px);
+      --hour-h: 36px;
       --body-bg: #E8ECF0;
       --muted: #D1D5DB;
     }
@@ -95,11 +96,13 @@
     .phone-frame {
       max-width: 390px;
       min-height: 100vh;
+      min-height: 100dvh;
       margin: 0 auto;
       background: var(--bg);
       position: relative;
       overflow: hidden;
       box-shadow: 0 0 40px rgba(0,0,0,0.15);
+      padding-top: max(var(--safe-top), 10px);
     }
 
     /* Status bar */
@@ -116,11 +119,11 @@
 
     /* Header */
     .header {
-      height: var(--header-h);
+      min-height: var(--header-h);
       background: var(--card);
       display: flex;
       align-items: center;
-      padding: 0 14px;
+      padding: 6px 14px;
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
@@ -252,7 +255,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 14px;
+      padding: 10px 14px;
       background: var(--card);
       border-bottom: 1px solid var(--border);
     }
@@ -901,8 +904,21 @@
       min-width: 0;
     }
 
-    .todo-content-row .color-picker {
+    .todo-color-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .todo-color-row .color-picker {
       flex: 0 0 auto;
+    }
+
+    #todoColorPicker .color-picker-panel {
+      bottom: calc(100% + 8px);
+      top: auto;
+      left: 0;
+      right: auto;
     }
 
     .todo-text-highlight {
@@ -1952,8 +1968,15 @@
     <div class="sheet-title" data-i18n="addTodo">新增待办</div>
     <div class="form-group">
       <label class="form-label" for="todoInput" data-i18n="content">内容</label>
-      <div class="todo-content-row">
-        <input type="text" class="form-input" id="todoInput" data-i18n-placeholder="todoPlaceholder" placeholder="输入新的待办事项..." maxlength="100">
+      <input type="text" class="form-input" id="todoInput" data-i18n-placeholder="todoPlaceholder" placeholder="输入新的待办事项..." maxlength="100">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="todoNote" data-i18n="note">备注</label>
+      <textarea class="form-textarea" id="todoNote" data-i18n-placeholder="optional" placeholder="选填" maxlength="200"></textarea>
+    </div>
+    <div class="form-group">
+      <span class="form-label" data-i18n="todoColor">颜色</span>
+      <div class="todo-color-row">
         <div class="color-picker" id="todoColorPicker">
           <button type="button" class="color-pick-btn" id="todoColorBtn" data-i18n-aria="chooseColor" aria-label="选择颜色"></button>
           <div class="color-picker-panel" id="todoColorPanel">
@@ -1976,10 +1999,6 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label" for="todoNote" data-i18n="note">备注</label>
-      <textarea class="form-textarea" id="todoNote" data-i18n-placeholder="optional" placeholder="选填" maxlength="200"></textarea>
     </div>
     <div class="sheet-actions sheet-actions-icon">
       <button class="btn btn-icon btn-secondary" id="btnCancelTodo" data-i18n-aria="cancel" aria-label="取消">×</button>
@@ -2081,6 +2100,7 @@
         save: '保存',
         add: '添加',
         chooseColor: '选择颜色',
+        todoColor: '颜色',
         errName: '请输入名称',
         errDate: '请选择日期',
         errTime: '结束时间必须晚于开始时间',
@@ -2165,6 +2185,7 @@
         save: 'Save',
         add: 'Add',
         chooseColor: 'Choose color',
+        todoColor: 'Color',
         errName: 'Please enter a name',
         errDate: 'Please select a date',
         errTime: 'End time must be after start time',
@@ -2342,9 +2363,9 @@
       applyTheme();
       applyLanguageToggle();
     }
-    const DEFAULT_START = 8;
+    const DEFAULT_START = 7;
     const DEFAULT_END = 24;
-    const HOUR_PX = 32;
+    const HOUR_PX = 36;
     const DAWN_END_HOUR = 6;
     const DAWN_END_MIN = DAWN_END_HOUR * 60;
 
@@ -3129,6 +3150,15 @@
       return result;
     }
 
+    function renderDayTimelineGrid(hoursEl, bodyEl, startHour, endHour, sectionTop) {
+      for (let h = startHour; h <= endHour; h++) {
+        const offset = (h - startHour) * HOUR_PX;
+        addHourLabel(hoursEl, h, sectionTop + offset);
+        if (h < endHour) addGridLine(bodyEl, sectionTop + offset);
+      }
+      return (endHour - startHour) * HOUR_PX;
+    }
+
     function renderSchedule() {
       renderDateNav();
       const events = getDayEvents();
@@ -3136,12 +3166,6 @@
       const bodyEl = document.getElementById('timelineBody');
       const emptyEl = document.getElementById('timelineEmpty');
       const timelineEl = document.getElementById('timeline');
-
-      if (!events.length) {
-        timelineEl.style.display = 'none';
-        emptyEl.style.display = 'block';
-        return;
-      }
 
       timelineEl.style.display = 'flex';
       emptyEl.style.display = 'none';
@@ -3158,33 +3182,22 @@
         const range = getDayRange(day);
         dayStartHour = range.startHour;
         dayEndHour = range.endHour;
-        const dayHeight = (dayEndHour - dayStartHour) * HOUR_PX;
+      }
 
-        for (let h = dayStartHour; h <= dayEndHour; h++) {
-          const offset = (h - dayStartHour) * HOUR_PX;
-          addHourLabel(hoursEl, h, totalHeight + offset);
-          if (h < dayEndHour) addGridLine(bodyEl, totalHeight + offset);
-        }
-
-        renderTimelineEvents(bodyEl, day, dayStartHour * 60, totalHeight, false);
-        totalHeight += dayHeight;
+      totalHeight += renderDayTimelineGrid(hoursEl, bodyEl, dayStartHour, dayEndHour, 0);
+      if (day.length > 0) {
+        renderTimelineEvents(bodyEl, day, dayStartHour * 60, 0, false);
       }
 
       if (dawn.length > 0) {
-        if (day.length > 0) {
-          addDawnDivider(bodyEl, totalHeight);
-          totalHeight += DIVIDER_H;
-        } else {
-          addDawnDivider(bodyEl, 0);
-          totalHeight += DIVIDER_H;
-        }
+        addDawnDivider(bodyEl, totalHeight);
+        totalHeight += DIVIDER_H;
 
         const dawnSectionTop = totalHeight;
         for (let h = 0; h < DAWN_END_HOUR; h++) {
           addHourLabel(hoursEl, h, totalHeight + h * HOUR_PX);
           addGridLine(bodyEl, totalHeight + h * HOUR_PX);
         }
-
         renderTimelineEvents(bodyEl, dawn, 0, dawnSectionTop, true);
         totalHeight += DAWN_END_HOUR * HOUR_PX;
       }
@@ -3200,12 +3213,10 @@
         nowLine.className = 'timeline-now';
 
         if (isDawnTime(nowTimeStr) && dawn.length > 0) {
-          const dawnOffset = day.length > 0
-            ? (dayEndHour - dayStartHour) * HOUR_PX + DIVIDER_H
-            : DIVIDER_H;
+          const dawnOffset = (dayEndHour - dayStartHour) * HOUR_PX + DIVIDER_H;
           nowLine.style.top = (dawnOffset + nowMin / 60 * HOUR_PX) + 'px';
           bodyEl.appendChild(nowLine);
-        } else if (day.length > 0) {
+        } else {
           const rangeStart = dayStartHour * 60;
           const rangeEnd = dayEndHour * 60;
           if (nowMin >= rangeStart && nowMin <= rangeEnd) {
