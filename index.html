@@ -904,21 +904,36 @@
       min-width: 0;
     }
 
-    .todo-color-row {
+    .todo-note-color-row {
       display: flex;
-      align-items: center;
       gap: 12px;
+      align-items: flex-start;
     }
 
-    .todo-color-row .color-picker {
+    .todo-note-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .todo-color-wrap {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding-top: 2px;
+    }
+
+    .todo-color-wrap .color-picker {
       flex: 0 0 auto;
     }
 
     #todoColorPicker .color-picker-panel {
-      bottom: calc(100% + 8px);
-      top: auto;
-      left: 0;
+      top: calc(100% + 8px);
+      bottom: auto;
+      left: 50%;
       right: auto;
+      transform: translateX(-50%);
     }
 
     .todo-text-highlight {
@@ -1970,13 +1985,13 @@
       <label class="form-label" for="todoInput" data-i18n="content">内容</label>
       <input type="text" class="form-input" id="todoInput" data-i18n-placeholder="todoPlaceholder" placeholder="输入新的待办事项..." maxlength="100">
     </div>
-    <div class="form-group">
-      <label class="form-label" for="todoNote" data-i18n="note">备注</label>
-      <textarea class="form-textarea" id="todoNote" data-i18n-placeholder="optional" placeholder="选填" maxlength="200"></textarea>
-    </div>
-    <div class="form-group">
-      <span class="form-label" data-i18n="todoColor">颜色</span>
-      <div class="todo-color-row">
+    <div class="form-group todo-note-color-row">
+      <div class="todo-note-wrap">
+        <label class="form-label" for="todoNote" data-i18n="note">备注</label>
+        <textarea class="form-textarea todo-note-input" id="todoNote" data-i18n-placeholder="optional" placeholder="选填" maxlength="200"></textarea>
+      </div>
+      <div class="todo-color-wrap">
+        <span class="form-label" data-i18n="todoColor">颜色</span>
         <div class="color-picker" id="todoColorPicker">
           <button type="button" class="color-pick-btn" id="todoColorBtn" data-i18n-aria="chooseColor" aria-label="选择颜色"></button>
           <div class="color-picker-panel" id="todoColorPanel">
