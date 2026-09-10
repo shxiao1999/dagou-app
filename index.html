@@ -1411,10 +1411,23 @@
 
     .form-row {
       display: flex;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .form-row .form-group { flex: 1; }
+    .form-row .form-group {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .form-row-time .form-input {
+      padding: 0 8px;
+      font-size: 14px;
+    }
+
+    input[type="time"].form-input {
+      min-width: 0;
+      max-width: 100%;
+    }
 
     .type-toggle {
       display: flex;
@@ -2013,23 +2026,25 @@
         <span class="form-label" data-i18n="todoColor">颜色</span>
         <div class="color-picker" id="todoColorPicker">
           <button type="button" class="color-pick-btn" id="todoColorBtn" data-i18n-aria="chooseColor" aria-label="选择颜色"></button>
-          <div class="color-picker-panel" id="todoColorPanel">
-            <div class="color-sv-panel" id="todoColorSvPanel">
-              <div class="color-sv-cursor" id="todoColorSvCursor"></div>
-            </div>
-            <div class="color-controls-row">
-              <button type="button" class="color-eyedropper-btn" id="todoColorEyedropperBtn" aria-label="吸管">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="m2 22 1-1h3l9-9"/>
-                  <path d="M12 6l6-6 6 6-6 6"/>
-                  <path d="m16 2 6 6"/>
-                </svg>
-              </button>
-              <div class="color-preview-circle" id="todoColorPreview"></div>
-              <div class="color-hue-track" id="todoColorHueTrack">
-                <div class="color-hue-thumb" id="todoColorHueThumb"></div>
-              </div>
-            </div>
+        </div>
+      </div>
+    </div>
+    <div class="todo-color-panel-slot" id="todoColorPanelSlot">
+      <div class="color-picker-panel" id="todoColorPanel">
+        <div class="color-sv-panel" id="todoColorSvPanel">
+          <div class="color-sv-cursor" id="todoColorSvCursor"></div>
+        </div>
+        <div class="color-controls-row">
+          <button type="button" class="color-eyedropper-btn" id="todoColorEyedropperBtn" aria-label="吸管">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m2 22 1-1h3l9-9"/>
+              <path d="M12 6l6-6 6 6-6 6"/>
+              <path d="m16 2 6 6"/>
+            </svg>
+          </button>
+          <div class="color-preview-circle" id="todoColorPreview"></div>
+          <div class="color-hue-track" id="todoColorHueTrack">
+            <div class="color-hue-thumb" id="todoColorHueThumb"></div>
           </div>
         </div>
       </div>
