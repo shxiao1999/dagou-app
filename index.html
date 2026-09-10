@@ -933,12 +933,26 @@
       margin-bottom: 0;
     }
 
-    #todoColorPicker .color-picker-panel {
-      top: calc(100% + 8px);
-      bottom: auto;
-      left: 50%;
-      right: auto;
-      transform: translateX(-50%);
+    .todo-color-panel-slot {
+      margin: -4px 0 16px;
+    }
+
+    .todo-color-panel-slot .color-picker-panel {
+      display: none;
+      position: static;
+      width: 100%;
+      transform: none;
+      box-shadow: none;
+      border: 1px solid var(--border);
+      padding: 10px;
+    }
+
+    .todo-color-panel-slot .color-picker-panel.show {
+      display: block;
+    }
+
+    .todo-color-panel-slot .color-sv-panel {
+      height: 120px;
     }
 
     .todo-text-highlight {
